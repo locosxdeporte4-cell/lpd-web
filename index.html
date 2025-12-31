@@ -4,17 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Locos por los Deportes</title>
-  <meta name="description" content="Noticias deportivas con relato al hueso y comentarios con corazón. Rangers, Primera B, Primera División y programa LxD." />
+  <meta name="description" content="Locos por los Deportes: Rangers, Primera B, Primera División y programa radial. Relato al hueso, comentarios con corazón." />
   <style>
     :root{
-      --bg:#0b1220;
-      --text:#e8eefc;
-      --muted:#a8b3cf;
-      --accent:#38bdf8;
-      --accent2:#ef4444;
-      --line:rgba(255,255,255,.10);
-      --card:rgba(255,255,255,.04);
-      --shadow:0 18px 50px rgba(0,0,0,.35);
+      --bg:#0b1220; --text:#e8eefc; --muted:#a8b3cf;
+      --accent:#38bdf8; --accent2:#ef4444; --line:rgba(255,255,255,.10);
+      --card:rgba(255,255,255,.04); --shadow:0 18px 50px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
@@ -37,7 +32,6 @@
       box-shadow:var(--shadow);
     }
 
-    /* Header + Nav */
     header{
       position:sticky; top:0; z-index:50;
       backdrop-filter: blur(10px);
@@ -66,12 +60,12 @@
       border:1px solid var(--line);
       background:rgba(255,255,255,.03);
       color:var(--muted);
-      font-size:13px;font-weight:700;
+      font-size:13px;font-weight:800;
     }
     .navlink:hover{border-color:rgba(56,189,248,.45);color:var(--text)}
     .navlink.hot{border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.10);color:var(--text)}
 
-    /* Sponsors bar (ticker) */
+    /* Sponsors ticker */
     .sponsors{
       border-top:1px solid var(--line);
       border-bottom:1px solid var(--line);
@@ -87,7 +81,7 @@
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 10px;border-radius:999px;
       border:1px solid var(--line);
-      color:var(--muted); font-size:12.5px; font-weight:800;
+      color:var(--muted); font-size:12.5px; font-weight:900;
       background:rgba(255,255,255,.03);
       white-space:nowrap;
     }
@@ -115,7 +109,7 @@
       padding:8px 12px;border-radius:999px;
       border:1px solid var(--line);
       background:rgba(255,255,255,.03);
-      color:var(--muted); font-size:13px; font-weight:750;
+      color:var(--muted); font-size:13px; font-weight:850;
       white-space:nowrap;
     }
     .badge{
@@ -123,10 +117,9 @@
       border:1px solid rgba(56,189,248,.35);
       background:rgba(56,189,248,.10);
       color:var(--text);
-      font-size:12px;font-weight:900;
+      font-size:12px;font-weight:950;
     }
 
-    /* Hero */
     .hero{margin-top:18px;display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
     @media(max-width:900px){.hero{grid-template-columns:1fr}}
     .heroLeft{padding:22px}
@@ -137,26 +130,26 @@
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
     .btn{
       display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      padding:12px 14px;border-radius:12px;font-weight:900;
+      padding:12px 14px;border-radius:12px;font-weight:950;
       border:1px solid var(--line); background:rgba(255,255,255,.04);
     }
     .btn.primary{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.10)}
-    .btn.ig{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.10)}
+    .btn.red{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.10)}
+    .btn:hover{filter:brightness(1.05)}
     .heroRight img{width:100%;height:100%;object-fit:cover;display:block}
     .caption{padding:12px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
 
-    /* Sections */
     section{margin-top:14px}
     .sectionHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:18px 4px 10px}
     .sectionHead h2{margin:0;font-size:18px}
     .sectionHead p{margin:0;color:var(--muted);font-size:13px}
+
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     @media(max-width:900px){.grid{grid-template-columns:1fr}}
     .box{padding:16px}
     .box h3{margin:0 0 8px;font-size:15.5px}
     .box p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
 
-    /* News cards */
     .newsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     @media(max-width:900px){.newsGrid{grid-template-columns:1fr}}
     .newsCard{display:flex;flex-direction:column}
@@ -170,19 +163,26 @@
       border:1px solid var(--line);
       background:rgba(255,255,255,.03);
       white-space:nowrap;
+      font-weight:850;
     }
     .newsTitle{margin:10px 0 8px;font-size:16px;line-height:1.25}
     .newsText{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
     .newsFooter{padding:12px 14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}
-    .link{color:var(--accent);font-weight:900;font-size:13px}
+    .link{color:var(--accent);font-weight:950;font-size:13px}
     .link:hover{text-decoration:underline}
 
-    /* Program */
     .program{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
     @media(max-width:900px){.program{grid-template-columns:1fr}}
     .slot{padding:16px}
     .slot b{display:block;margin-bottom:6px}
     .slot small{color:var(--muted)}
+
+    .socials{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .btn.ig{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.10)}
+    .btn.fb{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.10)}
+    .btn.yt{border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.12)}
+    .btn.tk{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.05)}
+    .btn.tw{border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.10)}
 
     footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
     .smallLinks a{color:var(--muted)}
@@ -205,8 +205,9 @@
       <a class="navlink hot" href="#ultimas">📰 Últimas</a>
       <a class="navlink" href="#rangers">🔵 Rangers</a>
       <a class="navlink" href="#primeraB">🏆 Primera B</a>
-      <a class="navlink" href="#primera">⭐ Primera División</a>
+      <a class="navlink" href="#primera">⭐ Primera</a>
       <a class="navlink" href="#programa">🎙️ Programa LxD</a>
+      <a class="navlink" href="#redes">📲 Redes</a>
     </nav>
   </div>
 
@@ -215,16 +216,20 @@
       <div class="sTag"><span class="dot"></span> Auspician</div>
 
       <div class="marquee" aria-label="Auspicios">
-        <!-- duplicado para efecto infinito -->
         <div class="track">
-          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #1</div>
-          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #2</div>
-          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #3</div>
-          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #4</div>
-          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #1</div>
-          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #2</div>
-          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #3</div>
-          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #4</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Automotriz Espinoza</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Punto Color Publicidad</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> M&amp;B Pinturas</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Residencia San Jorge</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Innovahome</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Radio Primavera</div>
+
+          <div class="sItem"><span class="badge">AUSPICIO</span> Automotriz Espinoza</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Punto Color Publicidad</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> M&amp;B Pinturas</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Residencia San Jorge</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Innovahome</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Radio Primavera</div>
         </div>
       </div>
     </div>
@@ -235,18 +240,16 @@
 
   <section class="hero">
     <div class="card heroLeft">
-      <div class="kicker">⚽ <b>Noticias con identidad</b> • Deportivo, radial y al grano</div>
+      <div class="kicker">⚽ <b>Deportivo y radial</b> • noticia cortita, con contexto y sin humo</div>
       <h1>Donde el deporte se vive… y se relata como corresponde.</h1>
       <p class="lead">
         Rangers, Primera B, Primera División y todo lo que se comenta en la semana.
-        Notas cortitas, con contexto y sin humo.
+        Con ritmo, con identidad y con la comunidad.
       </p>
 
       <div class="actions">
         <a class="btn primary" href="#ultimas">Ver últimas noticias</a>
-        <a class="btn ig" href="https://www.instagram.com/locos.porlosdeportes/" target="_blank" rel="noreferrer">
-          Instagram @locos.porlosdeportes
-        </a>
+        <a class="btn red" href="#programa">Ver programa (Lunes 21:00)</a>
       </div>
     </div>
 
@@ -257,32 +260,30 @@
     </div>
   </section>
 
-  <!-- ÚLTIMAS -->
   <section id="ultimas">
     <div class="sectionHead">
       <div>
         <h2>📰 Últimas noticias</h2>
         <p>Lo nuevo, lo importante y lo conversable.</p>
       </div>
-      <p>Actualización automática (próximo paso)</p>
+      <p>Pronto: automático desde WordPress</p>
     </div>
 
     <div class="newsGrid">
       <article class="card newsCard">
         <div class="thumb">
-          <img alt="Noticia"
+          <img alt="Últimas"
                src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1200&q=70">
         </div>
         <div class="newsBody">
           <div class="meta">
-            <span class="pill">Últimas</span>
-            <span>Hoy</span>
+            <span class="pill">Últimas</span><span>Hoy</span>
           </div>
-          <h3 class="newsTitle">Titular principal del día (ponle el toque LxD)</h3>
-          <p class="newsText">Bajada corta con estilo radial: qué pasó, por qué importa y qué se viene.</p>
+          <h3 class="newsTitle">Titular principal del día (con sello LxD)</h3>
+          <p class="newsText">Bajada cortita: qué pasó, por qué importa y qué viene ahora.</p>
         </div>
         <div class="newsFooter">
-          <span class="pill">LPD</span>
+          <span class="meta pill">LPD</span>
           <a class="link" href="#rangers">Ver Rangers →</a>
         </div>
       </article>
@@ -294,14 +295,13 @@
         </div>
         <div class="newsBody">
           <div class="meta">
-            <span class="pill">Primera B</span>
-            <span>Esta semana</span>
+            <span class="pill">Primera B</span><span>Semana</span>
           </div>
-          <h3 class="newsTitle">La Primera B no perdona: previa, forma y puntos clave</h3>
-          <p class="newsText">Resumen corto para enganchar: rendimiento, rivales y tabla.</p>
+          <h3 class="newsTitle">La Primera B no perdona: previa y puntos clave</h3>
+          <p class="newsText">Tabla, rendimiento y partidos que se juegan algo de verdad.</p>
         </div>
         <div class="newsFooter">
-          <span class="pill">Análisis</span>
+          <span class="meta pill">Análisis</span>
           <a class="link" href="#primeraB">Ir a Primera B →</a>
         </div>
       </article>
@@ -313,26 +313,24 @@
         </div>
         <div class="newsBody">
           <div class="meta">
-            <span class="pill">Primera</span>
-            <span>Actualidad</span>
+            <span class="pill">Primera</span><span>Actualidad</span>
           </div>
           <h3 class="newsTitle">Primera División: lo que se habló y lo que se juega</h3>
-          <p class="newsText">Lo más conversado del fin de semana, con contexto y sin humo.</p>
+          <p class="newsText">Lo más conversado del finde, con contexto y sin humo.</p>
         </div>
         <div class="newsFooter">
-          <span class="pill">Opinión</span>
+          <span class="meta pill">Opinión</span>
           <a class="link" href="#primera">Ir a Primera →</a>
         </div>
       </article>
     </div>
   </section>
 
-  <!-- RANGERS -->
   <section id="rangers">
     <div class="sectionHead">
       <div>
         <h2>🔵 Rangers</h2>
-        <p>Seguimiento, refuerzos, fixture y lo que se comenta en Talca.</p>
+        <p>Seguimiento, refuerzos, fixture y lo que se conversa en Talca.</p>
       </div>
       <p>Sección lista para automatizar</p>
     </div>
@@ -343,8 +341,8 @@
         <p>Marcador, figura, momento clave y lo que dejó el partido.</p>
       </div>
       <div class="card box">
-        <h3>Refuerzos & plantel</h3>
-        <p>Altas, bajas, rumores y confirmaciones (sin humo, con fuente).</p>
+        <h3>Plantel y refuerzos</h3>
+        <p>Altas, bajas y confirmaciones (con fuente).</p>
       </div>
       <div class="card box">
         <h3>Lo que viene</h3>
@@ -353,12 +351,11 @@
     </div>
   </section>
 
-  <!-- PRIMERA B -->
   <section id="primeraB">
     <div class="sectionHead">
       <div>
         <h2>🏆 Primera B</h2>
-        <p>Tabla, fechas, equipos fuertes y sorpresas.</p>
+        <p>Tabla, fechas, duelos fuertes y sorpresas.</p>
       </div>
       <p>Modo cobertura</p>
     </div>
@@ -379,12 +376,11 @@
     </div>
   </section>
 
-  <!-- PRIMERA DIVISIÓN -->
   <section id="primera">
     <div class="sectionHead">
       <div>
         <h2>⭐ Primera División</h2>
-        <p>Noticias grandes, polémicas, tabla y fechas.</p>
+        <p>Noticias grandes, polémicas y tabla.</p>
       </div>
       <p>Resumen con contexto</p>
     </div>
@@ -392,7 +388,7 @@
     <div class="grid">
       <div class="card box">
         <h3>Lo más conversado</h3>
-        <p>Lo que se habló en la fecha: VAR, penales, polémicas.</p>
+        <p>VAR, penales, polémicas y lo que dejó la fecha.</p>
       </div>
       <div class="card box">
         <h3>Top equipos</h3>
@@ -405,41 +401,54 @@
     </div>
   </section>
 
-  <!-- PROGRAMA -->
   <section id="programa">
     <div class="sectionHead">
       <div>
         <h2>🎙️ Programa LxD</h2>
-        <p>La pauta: previa, relato y post con identidad.</p>
+        <p>Todos los lunes a las 21:00</p>
       </div>
-      <p>Configurable</p>
+      <p>Formato radial</p>
     </div>
 
     <div class="program">
       <div class="card slot">
-        <b>Previa</b>
-        <small>Formaciones, claves y “ojo con…” en 60 segundos.</small>
+        <b>21:00 — Arranque</b>
+        <small>Lo más importante del finde y lo que se viene.</small>
       </div>
       <div class="card slot">
-        <b>Al aire</b>
-        <small>Relato con ritmo, sin ahogarse y con emoción.</small>
+        <b>Debate</b>
+        <small>Opinión con respeto, sin humo.</small>
       </div>
       <div class="card slot">
-        <b>Post partido</b>
-        <small>Figura, polémicas, resumen y lo que viene.</small>
+        <b>Rangers / Primera B</b>
+        <small>La pauta local, como corresponde.</small>
       </div>
       <div class="card slot">
-        <b>Redes</b>
-        <small>Clips, stories y debate con la comunidad.</small>
+        <b>Cierre</b>
+        <small>Agenda, saludos y próximos relatos.</small>
       </div>
     </div>
+  </section>
 
-    <div class="card box" style="margin-top:12px">
-      <h3>📲 Redes oficiales</h3>
-      <p>Instagram: <b>@locos.porlosdeportes</b> — clips, historias y resumen de la fecha.</p>
-      <div class="actions" style="margin-top:12px">
-        <a class="btn ig" href="https://www.instagram.com/locos.porlosdeportes/" target="_blank" rel="noreferrer">Abrir Instagram</a>
-        <a class="btn primary" href="#ultimas">Volver a Últimas</a>
+  <section id="redes">
+    <div class="sectionHead">
+      <div>
+        <h2>📲 Redes</h2>
+        <p>Síguenos y acompáñanos en todas las plataformas.</p>
+      </div>
+      <p>Comunidad LxD</p>
+    </div>
+
+    <div class="card box">
+      <h3>Canales oficiales</h3>
+      <p>Clips, lives, historias y contenido deportivo con identidad.</p>
+
+      <div class="socials">
+        <a class="btn ig" href="https://www.instagram.com/locos.porlosdeportes/" target="_blank" rel="noreferrer">📸 Instagram</a>
+        <a class="btn fb" href="https://www.facebook.com/people/Locos-por-los-Deportes/61573031742509/?utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank" rel="noreferrer">📘 Facebook</a>
+        <a class="btn yt" href="https://www.youtube.com/@locosporlosdeportes" target="_blank" rel="noreferrer">▶️ YouTube</a>
+        <a class="btn tk" href="https://www.tiktok.com/@locosporlosdeportes?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer">🎵 TikTok</a>
+        <a class="btn tw" href="https://m.twitch.tv/locosporlosdeportes/home?fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnO7EJA_gUox5Lfs63RLPWNTGldWw3QSA_KKTotcSJowS0BThxjibZQvUB45o_aem_VVi_D3Pf9sdFv5nx6D6vyw" target="_blank" rel="noreferrer">🟣 Twitch</a>
       </div>
     </div>
   </section>
@@ -451,7 +460,8 @@
       <a href="#rangers">Rangers</a> ·
       <a href="#primeraB">Primera B</a> ·
       <a href="#primera">Primera</a> ·
-      <a href="#programa">Programa</a>
+      <a href="#programa">Programa</a> ·
+      <a href="#redes">Redes</a>
     </small>
   </footer>
 
