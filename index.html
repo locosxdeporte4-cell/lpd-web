@@ -1,9 +1,7 @@
 <script>
   const WP_BASE = "https://notice-gah5dyfxahbje3bb.chilecentral-01.azurewebsites.net";
 
-  // ⚠️ Si tu categoría "Últimas" no es 1, cambia este número.
   const CAT_ULTIMAS   = 1;
-
   const CAT_RANGERS   = 2;
   const CAT_PRIMERAB  = 3;
   const CAT_PRIMERA   = 4;
@@ -12,9 +10,8 @@
   const CAT_OPINION   = 7;
   const CAT_F1        = 9;
 
-  // cache para no pedir 100 veces lo mismo
-  const mediaCacheById = new Map();     // mediaId -> url
-  const mediaCacheByPost = new Map();   // postId -> url
+  const mediaCacheById = new Map();
+  const mediaCacheByPost = new Map();
 
   function decodeHtml(html) {
     const t = document.createElement("textarea");
@@ -33,73 +30,63 @@
     return d.toLocaleDateString("es-CL", { day: "2-digit", month: "short" });
   }
 
-  // 1) featured embebido (rápido)
   function pickFeaturedFromEmbedded(post) {
-    const media = post?._embedded?.["wp:featuredmedia"]?.[0];
+    const media = post && post._embedded && post._embedded["wp:featuredmedia"] ? post._embedded["wp:featuredmedia"][0] : null;
     if (!media) return null;
-    return (
-      media?.media_details?.sizes?.medium_large?.source_url ||
-      media?.media_details?.sizes?.large?.source_url ||
-      media?.source_url ||
-      null
-    );
+    return (media.media_details && media.media_details.sizes && (media.media_details.sizes.medium_large || media.media_details.sizes.large))
+      ? ((media.media_details.sizes.medium_large && media.media_details.sizes.medium_large.source_url) ||
+         (media.media_details.sizes.large && media.media_details.sizes.large.source_url))
+      : (media.source_url || null);
   }
 
-  // 2) primera imagen dentro del contenido (rápido)
   function pickFirstImgFromContent(post) {
-    const html = post?.content?.rendered || "";
+    const html = post && post.content && post.content.rendered ? post.content.rendered : "";
     const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-    return (match && match[1]) ? match[1] : null;
+    return match && match[1] ? match[1] : null;
   }
 
   async function fetchJson(url) {
     const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    if (!res.ok) throw new Error("HTTP " + res.status + " for " + url);
     return res.json();
   }
 
-  // 3) featured_media id -> /media/{id}
   async function resolveFromFeaturedMediaId(post) {
-    const mediaId = post?.featured_media || 0;
+    const mediaId = post && post.featured_media ? post.featured_media : 0;
     if (!mediaId) return null;
 
     if (mediaCacheById.has(mediaId)) return mediaCacheById.get(mediaId);
 
-    const url = `${WP_BASE}/wp-json/wp/v2/media/${mediaId}`;
-    const media = await fetchJson(url);
-
+    const media = await fetchJson(WP_BASE + "/wp-json/wp/v2/media/" + mediaId);
     const src =
-      media?.media_details?.sizes?.medium_large?.source_url ||
-      media?.media_details?.sizes?.large?.source_url ||
-      media?.source_url ||
+      (media.media_details && media.media_details.sizes && media.media_details.sizes.medium_large && media.media_details.sizes.medium_large.source_url) ||
+      (media.media_details && media.media_details.sizes && media.media_details.sizes.large && media.media_details.sizes.large.source_url) ||
+      media.source_url ||
       null;
 
     if (src) mediaCacheById.set(mediaId, src);
     return src;
   }
 
-  // 4) attachments del post -> /media?parent={postId}
   async function resolveFromAttachments(post) {
-    const postId = post?.id;
+    const postId = post && post.id ? post.id : 0;
     if (!postId) return null;
 
     if (mediaCacheByPost.has(postId)) return mediaCacheByPost.get(postId);
 
-    const url = `${WP_BASE}/wp-json/wp/v2/media?parent=${postId}&per_page=1`;
-    const items = await fetchJson(url);
+    const items = await fetchJson(WP_BASE + "/wp-json/wp/v2/media?parent=" + postId + "&per_page=1");
     const media = Array.isArray(items) ? items[0] : null;
 
     const src =
-      media?.media_details?.sizes?.medium_large?.source_url ||
-      media?.media_details?.sizes?.large?.source_url ||
-      media?.source_url ||
+      (media && media.media_details && media.media_details.sizes && media.media_details.sizes.medium_large && media.media_details.sizes.medium_large.source_url) ||
+      (media && media.media_details && media.media_details.sizes && media.media_details.sizes.large && media.media_details.sizes.large.source_url) ||
+      (media && media.source_url) ||
       null;
 
     if (src) mediaCacheByPost.set(postId, src);
     return src;
   }
 
-  // ✅ Resolver final (usa todo lo anterior)
   async function resolveImage(post) {
     return (
       pickFeaturedFromEmbedded(post) ||
@@ -110,136 +97,7 @@
     );
   }
 
-  function makeCard(post, fallbackLabel) {
-    const title = decodeHtml(post?.title?.rendered || "Sin título");
-    const excerpt = stripTags(post?.excerpt?.rendered || "");
-    const date = formatDate(post?.date);
-
-    const cats = post?._embedded?.["wp:term"]?.[0] || [];
-    const label = cats?.[0]?.name ? decodeHtml(cats[0].name) : (fallbackLabel || "Últimas");
-
-    const thumbId = `thumb-${post.id}`;
-
-    // Guardamos lo mínimo para abrir en modal
-    const safeJson = encodeURIComponent(JSON.stringify({
-      title: post?.title?.rendered || "",
-      date: post?.date || "",
-      content: post?.content?.rendered || "",
-      link: post?.link || ""
-    }));
-
-    // arrancamos con placeholder; la imagen se resuelve async
-    return `
-      <article class="card newsCard" data-postid="${post.id}">
-        <div class="thumb" id="${thumbId}" style="display:grid;place-items:center;color:var(--muted);">
-          Cargando imagen…
-        </div>
-
-        <div class="newsBody">
-          <div class="meta">
-            <span class="pill">${label}</span>
-            <span>${date}</span>
-          </div>
-
-          <!-- Título clickeable abre modal -->
-          <h3 class="newsTitle">
-            <a href="javascript:void(0)" data-post="${safeJson}" onclick="openPostFromEl(this)">${title}</a>
-          </h3>
-
-          <p class="newsText">${excerpt || "Lee la nota completa."}</p>
-        </div>
-
-        <div class="newsFooter">
-          <span class="meta pill">LPD</span>
-
-          <div style="display:flex;gap:12px;align-items:center;">
-            <!-- ✅ Dentro de la web: modal -->
-            <a class="link" href="javascript:void(0)" data-post="${safeJson}" onclick="openPostFromEl(this)">Leer →</a>
-
-            <!-- ✅ Para compartir / redes: post.html -->
-            <a class="link" style="opacity:.9" href="/post.html?id=${post.id}">Abrir →</a>
-          </div>
-        </div>
-      </article>
-    `;
-  }
-
-  async function fetchPostsByCategory({ catId, perPage, page }) {
-    const url = `${WP_BASE}/wp-json/wp/v2/posts?_embed=1&per_page=${perPage}&page=${page}&categories=${catId}`;
-    return fetchJson(url);
-  }
-
-  async function hydrateThumbnails(posts) {
-    await Promise.all(posts.map(async (post) => {
-      try {
-        const src = await resolveImage(post);
-        const el = document.getElementById(`thumb-${post.id}`);
-        if (!el) return;
-
-        if (src) {
-          el.style.display = "block";
-          el.innerHTML = `<img alt="${decodeHtml(post?.title?.rendered || "Nota")}" src="${src}" loading="lazy">`;
-        } else {
-          el.style.display = "grid";
-          el.innerHTML = `Sin imagen`;
-        }
-      } catch (e) {
-        const el = document.getElementById(`thumb-${post.id}`);
-        if (el) el.innerHTML = `Sin imagen`;
-      }
-    }));
-  }
-
-  async function renderSection({ key, catId, label, perPage = 3, withMore = false }) {
-    const status = document.getElementById(`wpStatus-${key}`);
-    const grid = document.getElementById(`wpNews-${key}`);
-    const btn = document.getElementById(`wpMore-${key}`);
-
-    if (!catId || catId === 0) {
-      status.textContent = `Falta configurar el ID de categoría para ${label}.`;
-      if (btn) btn.disabled = true;
-      return;
-    }
-
-    let currentPage = 1;
-
-    async function load() {
-      if (btn) { btn.disabled = true; btn.textContent = "Cargando…"; }
-      status.textContent = `Cargando ${label}…`;
-
-      try {
-        const posts = await fetchPostsByCategory({ catId, perPage, page: currentPage });
-
-        if (!Array.isArray(posts) || posts.length === 0) {
-          status.textContent = currentPage === 1 ? `No hay noticias en ${label} aún.` : `No hay más noticias en ${label}.`;
-          if (btn) { btn.textContent = "Sin más"; btn.disabled = true; }
-          return;
-        }
-
-        grid.insertAdjacentHTML("beforeend", posts.map(p => makeCard(p, label)).join(""));
-        await hydrateThumbnails(posts);
-
-        status.textContent = `Mostrando ${grid.children.length} noticias de ${label}`;
-        currentPage += 1;
-
-        if (btn) { btn.disabled = false; btn.textContent = "Cargar más"; }
-      } catch (e) {
-        console.error(e);
-        status.textContent = `No pude cargar ${label}. Revisa consola (F12).`;
-        if (btn) { btn.disabled = false; btn.textContent = "Reintentar"; }
-      }
-    }
-
-    if (withMore && btn) {
-      btn.addEventListener("click", load);
-    } else if (btn) {
-      btn.style.display = "none";
-    }
-
-    await load();
-  }
-
-  // ===== Modal control =====
+  // ==== MODAL ====
   function openPost(postObj) {
     document.getElementById("modalTitle").textContent = decodeHtml(postObj.title || "Nota");
     const d = postObj.date ? new Date(postObj.date) : null;
@@ -271,13 +129,146 @@
     }
   }
 
-  // cerrar modal clickeando fondo + ESC
-  document.getElementById("postModal")?.addEventListener("click", (e) => {
+  window.openPostFromEl = openPostFromEl;
+  window.closePost = closePost;
+
+  document.getElementById("postModal") && document.getElementById("postModal").addEventListener("click", (e) => {
     if (e.target && e.target.id === "postModal") closePost();
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closePost();
   });
+
+  // ==== Cards ====
+  function makeCard(post, fallbackLabel) {
+    const title = decodeHtml((post && post.title && post.title.rendered) ? post.title.rendered : "Sin título");
+    const excerpt = stripTags((post && post.excerpt && post.excerpt.rendered) ? post.excerpt.rendered : "");
+    const date = formatDate(post && post.date ? post.date : "");
+
+    const cats = post && post._embedded && post._embedded["wp:term"] ? (post._embedded["wp:term"][0] || []) : [];
+    const label = (cats[0] && cats[0].name) ? decodeHtml(cats[0].name) : (fallbackLabel || "Últimas");
+
+    const thumbId = "thumb-" + post.id;
+
+    const safeJson = encodeURIComponent(JSON.stringify({
+      title: (post && post.title && post.title.rendered) ? post.title.rendered : "",
+      date: post && post.date ? post.date : "",
+      content: (post && post.content && post.content.rendered) ? post.content.rendered : "",
+      link: post && post.link ? post.link : "",
+      id: post && post.id ? post.id : 0
+    }));
+
+    return `
+      <article class="card newsCard" data-postid="${post.id}">
+        <div class="thumb" id="${thumbId}" style="display:grid;place-items:center;color:var(--muted);">
+          Cargando imagen…
+        </div>
+
+        <div class="newsBody">
+          <div class="meta">
+            <span class="pill">${label}</span>
+            <span>${date}</span>
+          </div>
+
+          <h3 class="newsTitle">
+            <a href="javascript:void(0)" data-post="${safeJson}" onclick="openPostFromEl(this)">${title}</a>
+          </h3>
+
+          <p class="newsText">${excerpt || "Lee la nota completa."}</p>
+        </div>
+
+        <div class="newsFooter">
+          <span class="meta pill">LPD</span>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <a class="link" href="javascript:void(0)" data-post="${safeJson}" onclick="openPostFromEl(this)">Leer →</a>
+            <a class="link" style="opacity:.9" href="/post.html?id=${post.id}">Abrir →</a>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  async function fetchPostsByCategory(catId, perPage, page) {
+    const url = WP_BASE + "/wp-json/wp/v2/posts?_embed=1&per_page=" + perPage + "&page=" + page + "&categories=" + catId;
+    return fetchJson(url);
+  }
+
+  async function hydrateThumbnails(posts) {
+    await Promise.all(posts.map(async (post) => {
+      try {
+        const src = await resolveImage(post);
+        const el = document.getElementById("thumb-" + post.id);
+        if (!el) return;
+
+        if (src) {
+          el.style.display = "block";
+          el.innerHTML = `<img alt="${decodeHtml(post.title && post.title.rendered ? post.title.rendered : "Nota")}" src="${src}" loading="lazy">`;
+        } else {
+          el.style.display = "grid";
+          el.textContent = "Sin imagen";
+        }
+      } catch (e) {
+        const el = document.getElementById("thumb-" + post.id);
+        if (el) { el.style.display = "grid"; el.textContent = "Sin imagen"; }
+      }
+    }));
+  }
+
+  async function renderSection(opts) {
+    const key = opts.key;
+    const catId = opts.catId;
+    const label = opts.label;
+    const perPage = opts.perPage || 3;
+    const withMore = !!opts.withMore;
+
+    const status = document.getElementById("wpStatus-" + key);
+    const grid = document.getElementById("wpNews-" + key);
+    const btn = document.getElementById("wpMore-" + key);
+
+    if (!status || !grid) return;
+
+    if (!catId) {
+      status.textContent = "Falta configurar el ID de categoría para " + label + ".";
+      if (btn) btn.disabled = true;
+      return;
+    }
+
+    let currentPage = 1;
+
+    async function load() {
+      if (btn) { btn.disabled = true; btn.textContent = "Cargando…"; }
+      status.textContent = "Cargando " + label + "…";
+
+      try {
+        const posts = await fetchPostsByCategory(catId, perPage, currentPage);
+
+        if (!Array.isArray(posts) || posts.length === 0) {
+          status.textContent = currentPage === 1 ? ("No hay noticias en " + label + " aún.") : ("No hay más noticias en " + label + ".");
+          if (btn) { btn.textContent = "Sin más"; btn.disabled = true; }
+          return;
+        }
+
+        grid.insertAdjacentHTML("beforeend", posts.map(p => makeCard(p, label)).join(""));
+        await hydrateThumbnails(posts);
+
+        status.textContent = "Mostrando " + grid.children.length + " noticias de " + label;
+        currentPage += 1;
+
+        if (btn) { btn.disabled = false; btn.textContent = "Cargar más"; }
+      } catch (e) {
+        console.error(e);
+        status.textContent = "No pude cargar " + label + ". Revisa consola (F12).";
+        if (btn) { btn.disabled = false; btn.textContent = "Reintentar"; }
+      }
+    }
+
+    if (btn) {
+      if (withMore) btn.addEventListener("click", load);
+      else btn.style.display = "none";
+    }
+
+    await load();
+  }
 
   document.addEventListener("DOMContentLoaded", () => {
     renderSection({ key: "ultimas",       catId: CAT_ULTIMAS,   label: "Últimas",            perPage: 6, withMore: true });
