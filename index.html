@@ -1,15 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Locos por los Deportes</title>
+  <meta name="description" content="Locos por los Deportes: Rangers, Primera B, Primera División y programa radial. Relato al hueso, comentarios con corazón." />
+  <style>
+    :root{
+      --bg:#0b1220; --text:#e8eefc; --muted:#a8b3cf;
+      --accent:#38bdf8; --accent2:#ef4444; --line:rgba(255,255,255,.10);
+      --card:rgba(255,255,255,.04); --shadow:0 18px 50px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1000px 500px at 18% 0%, rgba(56,189,248,.25), transparent 60%),
+        radial-gradient(900px 520px at 92% 10%, rgba(239,68,68,.18), transparent 55%),
+        var(--bg);
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1120px;margin:0 auto;padding:18px 16px 70px;}
+    .card{
+      background:linear-gradient(180deg, var(--card), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,.80);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar{
+      max-width:1120px;margin:0 auto;
+      padding:12px 16px;
+      display:flex;gap:14px;align-items:center;justify-content:space-between;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:220px}
+    .logo{
+      width:42px;height:42px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:grid;place-items:center;
+      font-weight:900; letter-spacing:.5px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      user-select:none;
+    }
+    .brand b{display:block;font-size:15px}
+    .brand span{display:block;color:var(--muted);font-size:12.5px}
+    nav{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .navlink{
+      padding:10px 12px;border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:13px;font-weight:800;
+    }
+    .navlink:hover{border-color:rgba(56,189,248,.45);color:var(--text)}
+    .navlink.hot{border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.10);color:var(--text)}
+
+    /* Sponsors ticker */
+    .sponsors{
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      overflow:hidden;
+    }
+    .sponsorsInner{
+      max-width:1120px;margin:0 auto;
+      padding:10px 16px;
+      display:flex;align-items:center;gap:12px;
+    }
+    .sTag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted); font-size:12.5px; font-weight:900;
+      background:rgba(255,255,255,.03);
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:var(--accent2);
+      box-shadow:0 0 0 6px rgba(239,68,68,.14);
+    }
+    .marquee{
+      position:relative;
+      flex:1;
+      overflow:hidden;
+      mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    }
+    .track{
+      display:flex;gap:10px;align-items:center;
+      width:max-content;
+      animation: scroll 18s linear infinite;
+    }
+    @keyframes scroll{
+      0%{transform:translateX(0)}
+      100%{transform:translateX(-50%)}
+    }
+    .sItem{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--muted); font-size:13px; font-weight:850;
+      white-space:nowrap;
+    }
+    .badge{
+      padding:4px 8px;border-radius:999px;
+      border:1px solid rgba(56,189,248,.35);
+      background:rgba(56,189,248,.10);
+      color:var(--text);
+      font-size:12px;font-weight:950;
+    }
+
+    .hero{margin-top:18px;display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}}
+    .heroLeft{padding:22px}
+    .kicker{color:var(--muted);font-size:13px}
+    .kicker b{color:var(--accent)}
+    h1{margin:10px 0 10px;font-size:34px;line-height:1.1}
+    .lead{margin:0;color:var(--muted);line-height:1.6;font-size:15px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      padding:12px 14px;border-radius:12px;font-weight:950;
+      border:1px solid var(--line); background:rgba(255,255,255,.04);
+      cursor:pointer; color:var(--text);
+    }
+    .btn.primary{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.10)}
+    .btn.red{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.10)}
+    .btn:hover{filter:brightness(1.05)}
+    .heroRight img{width:100%;height:100%;object-fit:cover;display:block}
+    .caption{padding:12px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+
+    section{margin-top:14px}
+    .sectionHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:18px 4px 10px}
+    .sectionHead h2{margin:0;font-size:18px}
+    .sectionHead p{margin:0;color:var(--muted);font-size:13px}
+
+    .newsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:900px){.newsGrid{grid-template-columns:1fr}}
+    .newsCard{display:flex;flex-direction:column}
+    .newsCard .thumb{height:160px;background:rgba(255,255,255,.03)}
+    .newsCard img{width:100%;height:100%;object-fit:cover;display:block}
+    .newsBody{padding:14px 14px 16px}
+    .meta{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap}
+    .meta .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      white-space:nowrap;
+      font-weight:850;
+    }
+    .newsTitle{margin:10px 0 8px;font-size:16px;line-height:1.25}
+    .newsTitle a:hover{text-decoration:underline}
+    .newsText{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
+    .newsFooter{padding:12px 14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .link{color:var(--accent);font-weight:950;font-size:13px}
+    .link:hover{text-decoration:underline}
+
+    .program{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    @media(max-width:900px){.program{grid-template-columns:1fr}}
+    .slot{padding:16px}
+    .slot b{display:block;margin-bottom:6px}
+    .slot small{color:var(--muted)}
+
+    .socials{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .btn.ig{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.10)}
+    .btn.fb{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.10)}
+    .btn.yt{border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.12)}
+    .btn.tk{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.05)}
+    .btn.tw{border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.10)}
+
+    footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .smallLinks a{color:var(--muted)}
+    .smallLinks a:hover{color:var(--text)}
+
+    /* Modal */
+    #postModal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);}
+    #postModal .panel{
+      max-width:900px;margin:5vh auto;background:var(--bg);
+      border-radius:16px;overflow:auto;max-height:90vh;
+      border:1px solid rgba(255,255,255,.15);
+      box-shadow:0 30px 90px rgba(0,0,0,.55);
+    }
+    #postModal .head{
+      padding:16px;border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      position:sticky;top:0;background:rgba(11,18,32,.92);backdrop-filter:blur(10px);
+    }
+    #modalTitle{margin:0;font-size:20px}
+    #modalMeta{color:var(--muted);font-size:13px;margin-bottom:10px}
+    #modalContent{line-height:1.65}
+    #modalContent img{max-width:100%;height:auto;border-radius:12px}
+    #modalContent a{color:var(--accent);font-weight:900}
+    #modalContent a:hover{text-decoration:underline}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">LPD</div>
+      <div>
+        <b>Locos por los Deportes</b>
+        <span>Relato al hueso • Comentarios con corazón • Chile 🇨🇱</span>
+      </div>
+    </div>
+
+    <nav>
+      <a class="navlink hot" href="#ultimas">📰 Últimas</a>
+      <a class="navlink" href="#rangers">🔵 Rangers</a>
+      <a class="navlink" href="#primeraB">🏆 Primera B</a>
+      <a class="navlink" href="#primera">⭐ Primera</a>
+      <a class="navlink" href="#seleccion">🇨🇱 Selección</a>
+      <a class="navlink" href="#polideportivo">🏟️ Polideportivo</a>
+      <a class="navlink" href="#f1">🏎️ F1</a>
+      <a class="navlink" href="#opinion">💬 Opinión</a>
+      <a class="navlink" href="#programa">🎙️ Programa LxD</a>
+      <a class="navlink" href="#redes">📲 Redes</a>
+    </nav>
+  </div>
+
+  <div class="sponsors">
+    <div class="sponsorsInner">
+      <div class="sTag"><span class="dot"></span> Auspician</div>
+
+      <div class="marquee" aria-label="Auspicios">
+        <div class="track">
+          <div class="sItem"><span class="badge">AUSPICIO</span> Automotriz Espinoza</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Punto Color Publicidad</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> M&amp;B Pinturas</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Residencia San Jorge</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Innovahome</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Radio Primavera</div>
+
+          <div class="sItem"><span class="badge">AUSPICIO</span> Automotriz Espinoza</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Punto Color Publicidad</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> M&amp;B Pinturas</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Residencia San Jorge</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Innovahome</div>
+          <div class="sItem"><span class="badge">AUSPICIO</span> Radio Primavera</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero">
+    <div class="card heroLeft">
+      <div class="kicker">⚽ <b>Deportivo y radial</b> • noticia cortita, con contexto y sin humo</div>
+      <h1>Donde el deporte se vive… y se relata como corresponde.</h1>
+      <p class="lead">
+        Rangers, Primera B, Primera División y todo lo que se comenta en la semana.
+        Con ritmo, con identidad y con la comunidad.
+      </p>
+
+      <div class="actions">
+        <a class="btn primary" href="#ultimas">Ver últimas noticias</a>
+        <a class="btn red" href="#programa">Ver programa (Lunes 21:00)</a>
+      </div>
+    </div>
+
+    <div class="card heroRight">
+      <img alt="Fútbol en estadio"
+           src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1200&q=70">
+      <div class="caption">Pasión, análisis y comunidad deportiva.</div>
+    </div>
+  </section>
+
+  <!-- SECCIONES WP -->
+  <section id="ultimas">
+    <div class="sectionHead">
+      <div><h2>📰 Últimas noticias</h2><p>Lo nuevo, lo importante y lo conversable.</p></div>
+      <p>Actualizado desde WordPress</p>
+    </div>
+    <div id="wpStatus-ultimas" class="kicker" style="margin:0 4px 10px;color:var(--muted);">Cargando Últimas…</div>
+    <div id="wpNews-ultimas" class="newsGrid"></div>
+    <div style="margin-top:12px;display:flex;justify-content:center;">
+      <button id="wpMore-ultimas" class="btn" type="button">Cargar más</button>
+    </div>
+  </section>
+
+  <section id="rangers">
+    <div class="sectionHead">
+      <div><h2>🔵 Rangers</h2><p>Seguimiento, refuerzos, fixture y lo que se conversa en Talca.</p></div>
+      <p>Actualizado desde WordPress</p>
+    </div>
+    <div id="wpStatus-rangers" class="kicker" style="margin:0 4px 10px;color:var(--muted);">Cargando Rangers…</div>
+    <div id="wpNews-rangers" class="newsGrid"></div>
+  </section>
+
+  <section id="primeraB">
+    <div class="sectionHead">
+      <div><h2>🏆 Primera B</h2><p>Tabla, fechas, duelos fuertes y sorpresas.</p></div>
+      <p>Actualizado desde WordPress</p>
+    </div>
+    <div id="wpStatus-primeraB" class="kicker" style="margin:0 4px 10px;color:var(--muted);">Cargando Primera B…</div>
+    <div id="wpNews-primeraB" class="newsGrid"></div>
+  </section>
+
+  <section id="primera">
+    <div class="sectionHead">
+      <div><h2>⭐ Primera División</h2><p>Noticias grandes, polémicas y tabla.</p></div>
+      <p>Actualizado desde WordPress</p>
+    </div>
+    <div id="wpStatus-primera" class="kicker" style="margin:0 4px 10px;color:var(--muted);">Cargando Primera…</div>
+    <div id="wpNews-primera" class="newsGrid"></div>
+  </section>
+
+  <section id="seleccion">
+    <div class="sectionHead">
+      <div><h2>🇨🇱 Selección Chilena</h2><p>La Roja, eliminatorias, amistosos y análisis.</p></div>
+      <p>Actualizado desde WordPress</p>
+    </div>
+    <div id="wpStatus-seleccion" class="kicker" style="margin:0 4px 10px;color:var(--muted);">Cargando Selección…</div>
+    <div id="wpNews-seleccion" class="newsGrid"></div>
+  </section>
+
+  <section id="polideportivo">
+    <div class="sectionHead">
+      <div><h2>🏟️ Polideportivo</h2><p>Tenis, básquet, motor y lo local con sello LPD.</p></div>
+      <p>Actualizado desde WordPress</p>
+    </div>
+    <div id="wpStatus-polideportivo" class="kicker" style="margin:0 4px 10px;color:var(--muted);">Cargando Polideportivo…</div>
+    <div id="wpNews-polideportivo" class="newsGrid"></div>
+  </section>
+
+  <section id="f1">
+    <div class="sectionHead">
+      <div><h2>🏎️ Fórmula 1</h2><p>Noticias, resultados, rumores y análisis.</p></div>
+      <p>Actualizado desde WordPress</p>
+    </div>
+    <div id="wpStatus-f1" class="kicker" style="margin:0 4px 10px;color:var(--muted);">Cargando F1…</div>
+    <div id="wpNews-f1" class="newsGrid"></div>
+  </section>
+
+  <section id="opinion">
+    <div class="sectionHead">
+      <div><h2>💬 Opinión</h2><p>Columna, mirada LPD, sin humo pero con carácter.</p></div>
+      <p>Actualizado desde WordPress</p>
+    </div>
+    <div id="wpStatus-opinion" class="kicker" style="margin:0 4px 10px;color:var(--muted);">Cargando Opinión…</div>
+    <div id="wpNews-opinion" class="newsGrid"></div>
+  </section>
+
+  <section id="programa">
+    <div class="sectionHead">
+      <div><h2>🎙️ Programa LxD</h2><p>Todos los lunes a las 21:00</p></div>
+      <p>Formato radial</p>
+    </div>
+
+    <div class="program">
+      <div class="card slot"><b>21:00 — Arranque</b><small>Lo más importante del finde y lo que se viene.</small></div>
+      <div class="card slot"><b>Debate</b><small>Opinión con respeto, sin humo.</small></div>
+      <div class="card slot"><b>Rangers / Primera B</b><small>La pauta local, como corresponde.</small></div>
+      <div class="card slot"><b>Cierre</b><small>Agenda, saludos y próximos relatos.</small></div>
+    </div>
+  </section>
+
+  <section id="redes">
+    <div class="sectionHead">
+      <div><h2>📲 Redes</h2><p>Síguenos y acompáñanos en todas las plataformas.</p></div>
+      <p>Comunidad LxD</p>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <h3 style="margin:0 0 8px;font-size:15.5px">Canales oficiales</h3>
+      <p style="margin:0;color:var(--muted);font-size:13.5px;line-height:1.55">Clips, lives, historias y contenido deportivo con identidad.</p>
+
+      <div class="socials">
+        <a class="btn ig" href="https://www.instagram.com/locos.porlosdeportes/" target="_blank" rel="noreferrer">📸 Instagram</a>
+        <a class="btn fb" href="https://www.facebook.com/people/Locos-por-los-Deportes/61573031742509/?utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank" rel="noreferrer">📘 Facebook</a>
+        <a class="btn yt" href="https://www.youtube.com/@locosporlosdeportes" target="_blank" rel="noreferrer">▶️ YouTube</a>
+        <a class="btn tk" href="https://www.tiktok.com/@locosporlosdeportes?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer">🎵 TikTok</a>
+        <a class="btn tw" href="https://m.twitch.tv/locosporlosdeportes/home" target="_blank" rel="noreferrer">🟣 Twitch</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <small>© 2025 Locos por los Deportes</small>
+    <small class="smallLinks">
+      <a href="#ultimas">Últimas</a> ·
+      <a href="#rangers">Rangers</a> ·
+      <a href="#primeraB">Primera B</a> ·
+      <a href="#primera">Primera</a> ·
+      <a href="#seleccion">Selección</a> ·
+      <a href="#polideportivo">Polideportivo</a> ·
+      <a href="#f1">F1</a> ·
+      <a href="#opinion">Opinión</a> ·
+      <a href="#programa">Programa</a> ·
+      <a href="#redes">Redes</a>
+    </small>
+  </footer>
+
+</div>
+
+<!-- MODAL -->
+<div id="postModal" aria-hidden="true">
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="head">
+      <h2 id="modalTitle"></h2>
+      <button class="btn" type="button" onclick="closePost()">✖</button>
+    </div>
+    <div style="padding:18px">
+      <div id="modalMeta"></div>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+</div>
+
 <script>
-  const WP_BASE = "https://notice-gah5dyfxahbje3bb.chilecentral-01.azurewebsites.net";
-
-  const CAT_ULTIMAS   = 1;
-  const CAT_RANGERS   = 2;
-  const CAT_PRIMERAB  = 3;
-  const CAT_PRIMERA   = 4;
-  const CAT_SELECCION = 5;
-  const CAT_POLI      = 6;
-  const CAT_OPINION   = 7;
-  const CAT_F1        = 9;
-
   const mediaCacheById = new Map();
   const mediaCacheByPost = new Map();
 
@@ -18,18 +431,15 @@
     t.innerHTML = html || "";
     return t.value;
   }
-
   function stripTags(html) {
     return (html || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   }
-
   function formatDate(dateStr) {
     if (!dateStr) return "";
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return "";
     return d.toLocaleDateString("es-CL", { day: "2-digit", month: "short" });
   }
-
   function pickFeaturedFromEmbedded(post) {
     const media = post?._embedded?.["wp:featuredmedia"]?.[0];
     if (!media) return null;
@@ -40,28 +450,22 @@
       null
     );
   }
-
   function pickFirstImgFromContent(post) {
     const html = post?.content?.rendered || "";
     const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
     return (match && match[1]) ? match[1] : null;
   }
-
   async function fetchJson(url) {
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
     return res.json();
   }
-
   async function resolveFromFeaturedMediaId(post) {
     const mediaId = post?.featured_media || 0;
     if (!mediaId) return null;
-
     if (mediaCacheById.has(mediaId)) return mediaCacheById.get(mediaId);
 
-    const url = `${WP_BASE}/wp-json/wp/v2/media/${mediaId}`;
-    const media = await fetchJson(url);
-
+    const media = await fetchJson(`${WP_BASE}/wp-json/wp/v2/media/${mediaId}`);
     const src =
       media?.media_details?.sizes?.medium_large?.source_url ||
       media?.media_details?.sizes?.large?.source_url ||
@@ -71,15 +475,12 @@
     if (src) mediaCacheById.set(mediaId, src);
     return src;
   }
-
   async function resolveFromAttachments(post) {
     const postId = post?.id;
     if (!postId) return null;
-
     if (mediaCacheByPost.has(postId)) return mediaCacheByPost.get(postId);
 
-    const url = `${WP_BASE}/wp-json/wp/v2/media?parent=${postId}&per_page=1`;
-    const items = await fetchJson(url);
+    const items = await fetchJson(`${WP_BASE}/wp-json/wp/v2/media?parent=${postId}&per_page=1`);
     const media = Array.isArray(items) ? items[0] : null;
 
     const src =
@@ -91,7 +492,6 @@
     if (src) mediaCacheByPost.set(postId, src);
     return src;
   }
-
   async function resolveImage(post) {
     return (
       pickFeaturedFromEmbedded(post) ||
@@ -102,40 +502,26 @@
     );
   }
 
-  // ===== Modal control =====
+  // Modal
   function openPost(postObj) {
-    const titleEl = document.getElementById("modalTitle");
-    const metaEl = document.getElementById("modalMeta");
-    const contentEl = document.getElementById("modalContent");
-    const modal = document.getElementById("postModal");
-
-    if (!titleEl || !metaEl || !contentEl || !modal) {
-      console.warn("Modal elements not found, cannot open modal.");
-      return;
-    }
-
-    titleEl.textContent = decodeHtml(postObj.title || "Nota");
-
+    document.getElementById("modalTitle").textContent = decodeHtml(postObj.title || "Nota");
     const d = postObj.date ? new Date(postObj.date) : null;
-    metaEl.textContent = d && !isNaN(d.getTime())
+    document.getElementById("modalMeta").textContent = d && !isNaN(d.getTime())
       ? d.toLocaleDateString("es-CL", { day: "2-digit", month: "long", year: "numeric" })
       : "";
+    document.getElementById("modalContent").innerHTML = postObj.content || "";
 
-    contentEl.innerHTML = postObj.content || "";
-
+    const modal = document.getElementById("postModal");
     modal.style.display = "block";
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
   }
-
   function closePost() {
     const modal = document.getElementById("postModal");
-    if (!modal) return;
     modal.style.display = "none";
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
   }
-
   function openPostFromEl(el) {
     try {
       const raw = el.getAttribute("data-post");
@@ -145,17 +531,12 @@
       console.error("No pude abrir la nota en modal", e);
     }
   }
-
   window.openPostFromEl = openPostFromEl;
   window.closePost = closePost;
 
-  // cerrar modal clickeando fondo + ESC
-  const modalBg = document.getElementById("postModal");
-  if (modalBg) {
-    modalBg.addEventListener("click", (e) => {
-      if (e.target && e.target.id === "postModal") closePost();
-    });
-  }
+  document.getElementById("postModal")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "postModal") closePost();
+  });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closePost();
   });
@@ -180,9 +561,7 @@
 
     return `
       <article class="card newsCard" data-postid="${post.id}">
-        <div class="thumb" id="${thumbId}" style="display:grid;place-items:center;color:var(--muted);">
-          Cargando imagen…
-        </div>
+        <div class="thumb" id="${thumbId}" style="display:grid;place-items:center;color:var(--muted);">Cargando imagen…</div>
 
         <div class="newsBody">
           <div class="meta">
@@ -235,26 +614,11 @@
   }
 
   async function renderSection({ key, catId, label, perPage = 3, withMore = false }) {
-    const statusId = `wpStatus-${key}`;
-    const gridId   = `wpNews-${key}`;
-    const btnId    = `wpMore-${key}`;
+    const status = document.getElementById(`wpStatus-${key}`);
+    const grid = document.getElementById(`wpNews-${key}`);
+    const btn = document.getElementById(`wpMore-${key}`);
 
-    const status = document.getElementById(statusId);
-    const grid = document.getElementById(gridId);
-    const btn = document.getElementById(btnId);
-
-    // ✅ NO reventar si falta algo
-    if (!status || !grid) {
-      console.warn(`Faltan elementos para la sección "${key}". Se esperaba #${statusId} y #${gridId}`);
-      if (btn) btn.style.display = "none";
-      return;
-    }
-
-    if (!catId || catId === 0) {
-      status.textContent = `Falta configurar el ID de categoría para ${label}.`;
-      if (btn) btn.disabled = true;
-      return;
-    }
+    if (!status || !grid) return;
 
     let currentPage = 1;
 
@@ -304,3 +668,6 @@
     renderSection({ key: "opinion",       catId: CAT_OPINION,   label: "Opinión",            perPage: 3 });
   });
 </script>
+
+</body>
+</html>
