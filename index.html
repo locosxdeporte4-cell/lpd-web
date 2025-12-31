@@ -514,6 +514,10 @@
   const CAT_OPINION   = 7;
   const CAT_F1        = 9;
 
+  // cache para no pedir 100 veces lo mismo
+  const mediaCacheById = new Map();     // mediaId -> url
+  const mediaCacheByPost = new Map();   // postId -> url
+
   function decodeHtml(html) {
     const t = document.createElement("textarea");
     t.innerHTML = html || "";
@@ -524,25 +528,6 @@
     return (html || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   }
 
-  // ✅ robusto: featured -> primera imagen del contenido -> null
-  function pickFeaturedImage(post) {
-    const media = post?._embedded?.["wp:featuredmedia"]?.[0];
-    if (media) {
-      return (
-        media?.media_details?.sizes?.medium_large?.source_url ||
-        media?.media_details?.sizes?.large?.source_url ||
-        media?.source_url ||
-        null
-      );
-    }
-
-    const html = post?.content?.rendered || "";
-    const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-    if (match && match[1]) return match[1];
-
-    return null;
-  }
-
   function formatDate(dateStr) {
     if (!dateStr) return "";
     const d = new Date(dateStr);
@@ -550,16 +535,95 @@
     return d.toLocaleDateString("es-CL", { day: "2-digit", month: "short" });
   }
 
+  // 1) featured embebido (rápido)
+  function pickFeaturedFromEmbedded(post) {
+    const media = post?._embedded?.["wp:featuredmedia"]?.[0];
+    if (!media) return null;
+    return (
+      media?.media_details?.sizes?.medium_large?.source_url ||
+      media?.media_details?.sizes?.large?.source_url ||
+      media?.source_url ||
+      null
+    );
+  }
+
+  // 2) primera imagen dentro del contenido (rápido)
+  function pickFirstImgFromContent(post) {
+    const html = post?.content?.rendered || "";
+    const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+    return (match && match[1]) ? match[1] : null;
+  }
+
+  async function fetchJson(url) {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return res.json();
+  }
+
+  // 3) featured_media id -> /media/{id}
+  async function resolveFromFeaturedMediaId(post) {
+    const mediaId = post?.featured_media || 0;
+    if (!mediaId) return null;
+
+    if (mediaCacheById.has(mediaId)) return mediaCacheById.get(mediaId);
+
+    const url = `${WP_BASE}/wp-json/wp/v2/media/${mediaId}`;
+    const media = await fetchJson(url);
+
+    const src =
+      media?.media_details?.sizes?.medium_large?.source_url ||
+      media?.media_details?.sizes?.large?.source_url ||
+      media?.source_url ||
+      null;
+
+    if (src) mediaCacheById.set(mediaId, src);
+    return src;
+  }
+
+  // 4) attachments del post -> /media?parent={postId}
+  async function resolveFromAttachments(post) {
+    const postId = post?.id;
+    if (!postId) return null;
+
+    if (mediaCacheByPost.has(postId)) return mediaCacheByPost.get(postId);
+
+    const url = `${WP_BASE}/wp-json/wp/v2/media?parent=${postId}&per_page=1`;
+    const items = await fetchJson(url);
+    const media = Array.isArray(items) ? items[0] : null;
+
+    const src =
+      media?.media_details?.sizes?.medium_large?.source_url ||
+      media?.media_details?.sizes?.large?.source_url ||
+      media?.source_url ||
+      null;
+
+    if (src) mediaCacheByPost.set(postId, src);
+    return src;
+  }
+
+  // ✅ Resolver final (usa todo lo anterior)
+  async function resolveImage(post) {
+    // rápido primero
+    return (
+      pickFeaturedFromEmbedded(post) ||
+      pickFirstImgFromContent(post) ||
+      (await resolveFromFeaturedMediaId(post)) ||
+      (await resolveFromAttachments(post)) ||
+      null
+    );
+  }
+
   function makeCard(post, fallbackLabel) {
     const title = decodeHtml(post?.title?.rendered || "Sin título");
     const excerpt = stripTags(post?.excerpt?.rendered || "");
-    const img = pickFeaturedImage(post);
     const date = formatDate(post?.date);
 
     const cats = post?._embedded?.["wp:term"]?.[0] || [];
     const label = cats?.[0]?.name ? decodeHtml(cats[0].name) : (fallbackLabel || "Últimas");
 
-    // Guardamos el post completo en un atributo data, seguro para JSON
+    const thumbId = `thumb-${post.id}`;
+
+    // Guardamos lo mínimo para abrir en modal
     const safeJson = encodeURIComponent(JSON.stringify({
       title: post?.title?.rendered || "",
       date: post?.date || "",
@@ -567,14 +631,11 @@
       link: post?.link || ""
     }));
 
+    // arrancamos con placeholder; la imagen se resuelve async
     return `
-      <article class="card newsCard">
-        <div class="thumb">
-          ${
-            img
-              ? `<img alt="${title}" src="${img}">`
-              : `<div style="height:160px;display:grid;place-items:center;color:var(--muted);">Sin imagen</div>`
-          }
+      <article class="card newsCard" data-postid="${post.id}">
+        <div class="thumb" id="${thumbId}" style="display:grid;place-items:center;color:var(--muted);">
+          Cargando imagen…
         </div>
 
         <div class="newsBody">
@@ -596,9 +657,29 @@
 
   async function fetchPostsByCategory({ catId, perPage, page }) {
     const url = `${WP_BASE}/wp-json/wp/v2/posts?_embed=1&per_page=${perPage}&page=${page}&categories=${catId}`;
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`WP API ${res.status}`);
-    return res.json();
+    return fetchJson(url);
+  }
+
+  async function hydrateThumbnails(posts) {
+    // resuelve imágenes y las pinta en el thumb del card
+    await Promise.all(posts.map(async (post) => {
+      try {
+        const src = await resolveImage(post);
+        const el = document.getElementById(`thumb-${post.id}`);
+        if (!el) return;
+
+        if (src) {
+          el.style.display = "block";
+          el.innerHTML = `<img alt="${decodeHtml(post?.title?.rendered || "Nota")}" src="${src}" loading="lazy">`;
+        } else {
+          el.style.display = "grid";
+          el.innerHTML = `Sin imagen`;
+        }
+      } catch (e) {
+        const el = document.getElementById(`thumb-${post.id}`);
+        if (el) el.innerHTML = `Sin imagen`;
+      }
+    }));
   }
 
   async function renderSection({ key, catId, label, perPage = 3, withMore = false }) {
@@ -628,6 +709,8 @@
         }
 
         grid.insertAdjacentHTML("beforeend", posts.map(p => makeCard(p, label)).join(""));
+        await hydrateThumbnails(posts);
+
         status.textContent = `Mostrando ${grid.children.length} noticias de ${label}`;
         currentPage += 1;
 
@@ -680,12 +763,10 @@
     }
   }
 
-  // Cerrar modal clickeando fondo
-  document.getElementById("postModal").addEventListener("click", (e) => {
+  // cerrar modal clickeando fondo + ESC
+  document.getElementById("postModal")?.addEventListener("click", (e) => {
     if (e.target && e.target.id === "postModal") closePost();
   });
-
-  // Cerrar modal con ESC
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closePost();
   });
