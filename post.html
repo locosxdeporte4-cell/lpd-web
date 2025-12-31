@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nota | Locos por los Deportes</title>
+  <meta name="description" content="Nota en Locos por los Deportes." />
+  <style>
+    :root{
+      --bg:#0b1220; --text:#e8eefc; --muted:#a8b3cf;
+      --accent:#38bdf8; --accent2:#ef4444; --line:rgba(255,255,255,.10);
+      --card:rgba(255,255,255,.04); --shadow:0 18px 50px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1000px 500px at 18% 0%, rgba(56,189,248,.25), transparent 60%),
+        radial-gradient(900px 520px at 92% 10%, rgba(239,68,68,.18), transparent 55%),
+        var(--bg);
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:980px;margin:0 auto;padding:18px 16px 70px;}
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,.88);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar{
+      max-width:980px;margin:0 auto;
+      padding:12px 16px;
+      display:flex;gap:14px;align-items:center;justify-content:space-between;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:220px}
+    .logo{
+      width:42px;height:42px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:grid;place-items:center;
+      font-weight:900; letter-spacing:.5px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      user-select:none;
+    }
+    .brand b{display:block;font-size:15px}
+    .brand span{display:block;color:var(--muted);font-size:12.5px}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      padding:10px 12px;border-radius:12px;font-weight:950;
+      border:1px solid var(--line); background:rgba(255,255,255,.04);
+      cursor:pointer;
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .btn:hover{filter:brightness(1.05)}
+    .btn.primary{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.10)}
+
+    .card{
+      background:linear-gradient(180deg, var(--card), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+
+    .hero{padding:18px}
+    .kicker{color:var(--muted);font-size:13px}
+    .meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;color:var(--muted);font-size:13px}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      white-space:nowrap;
+      font-weight:850;
+      color:var(--muted);
+    }
+    h1{margin:10px 0 0;font-size:30px;line-height:1.15}
+    .cover{height:340px;background:rgba(255,255,255,.03)}
+    @media(max-width:900px){ .cover{height:220px} }
+    .cover img{width:100%;height:100%;object-fit:cover;display:block}
+    .content{padding:18px}
+
+    /* Estilos dentro del contenido WP */
+    .wpContent{line-height:1.75}
+    .wpContent img{max-width:100%;height:auto;border-radius:14px}
+    .wpContent a{color:var(--accent);font-weight:900}
+    .wpContent a:hover{text-decoration:underline}
+    .wpContent h2,.wpContent h3{margin-top:22px}
+    .wpContent blockquote{
+      margin:18px 0;
+      padding:14px 16px;
+      border-left:4px solid rgba(56,189,248,.45);
+      background:rgba(255,255,255,.03);
+      border-radius:12px;
+      color:var(--muted);
+    }
+    .wpContent ul,.wpContent ol{padding-left:20px}
+    .wpContent hr{border:none;border-top:1px solid var(--line);margin:18px 0}
+
+    .status{margin-top:14px;color:var(--muted);font-size:13px}
+    footer{margin-top:20px;color:var(--muted);font-size:13px}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">LPD</div>
+      <div>
+        <b>Locos por los Deportes</b>
+        <span>Relato al hueso • Comentarios con corazón • Chile 🇨🇱</span>
+      </div>
+    </div>
+    <a class="btn" href="/index.html">← Volver</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="hero">
+      <div class="kicker" id="kicker">Cargando nota…</div>
+      <h1 id="title">—</h1>
+
+      <div class="meta" id="meta"></div>
+    </div>
+
+    <div class="cover" id="cover">
+      <div style="height:100%;display:grid;place-items:center;color:var(--muted);">Cargando imagen…</div>
+    </div>
+
+    <div class="content">
+      <div class="wpContent" id="content"></div>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Locos por los Deportes
+  </footer>
+
+</div>
+
+<script>
+  const WP_BASE = "https://notice-gah5dyfxahbje3bb.chilecentral-01.azurewebsites.net";
+
+  const mediaCacheById = new Map();
+  const mediaCacheByPost = new Map();
+
+  function decodeHtml(html) {
+    const t = document.createElement("textarea");
+    t.innerHTML = html || "";
+    return t.value;
+  }
+
+  function qs(name) {
+    const u = new URL(window.location.href);
+    return u.searchParams.get(name);
+  }
+
+  function formatDateLong(dateStr) {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("es-CL", { day:"2-digit", month:"long", year:"numeric" });
+  }
+
+  async function fetchJson(url) {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function pickFeaturedFromEmbedded(post) {
+    const media = post?._embedded?.["wp:featuredmedia"]?.[0];
+    if (!media) return null;
+    return (
+      media?.media_details?.sizes?.large?.source_url ||
+      media?.media_details?.sizes?.medium_large?.source_url ||
+      media?.source_url ||
+      null
+    );
+  }
+
+  function pickFirstImgFromContent(post) {
+    const html = post?.content?.rendered || "";
+    const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+    return (match && match[1]) ? match[1] : null;
+  }
+
+  async function resolveFromFeaturedMediaId(post) {
+    const mediaId = post?.featured_media || 0;
+    if (!mediaId) return null;
+
+    if (mediaCacheById.has(mediaId)) return mediaCacheById.get(mediaId);
+
+    const media = await fetchJson(`${WP_BASE}/wp-json/wp/v2/media/${mediaId}`);
+    const src =
+      media?.media_details?.sizes?.large?.source_url ||
+      media?.media_details?.sizes?.medium_large?.source_url ||
+      media?.source_url ||
+      null;
+
+    if (src) mediaCacheById.set(mediaId, src);
+    return src;
+  }
+
+  async function resolveFromAttachments(post) {
+    const postId = post?.id;
+    if (!postId) return null;
+
+    if (mediaCacheByPost.has(postId)) return mediaCacheByPost.get(postId);
+
+    const items = await fetchJson(`${WP_BASE}/wp-json/wp/v2/media?parent=${postId}&per_page=1`);
+    const media = Array.isArray(items) ? items[0] : null;
+
+    const src =
+      media?.media_details?.sizes?.large?.source_url ||
+      media?.media_details?.sizes?.medium_large?.source_url ||
+      media?.source_url ||
+      null;
+
+    if (src) mediaCacheByPost.set(postId, src);
+    return src;
+  }
+
+  async function resolveImage(post) {
+    return (
+      pickFeaturedFromEmbedded(post) ||
+      pickFirstImgFromContent(post) ||
+      (await resolveFromFeaturedMediaId(post)) ||
+      (await resolveFromAttachments(post)) ||
+      null
+    );
+  }
+
+  function setCover(url, alt) {
+    const cover = document.getElementById("cover");
+    if (url) {
+      cover.innerHTML = `<img src="${url}" alt="${alt}" loading="lazy">`;
+    } else {
+      cover.innerHTML = `<div style="height:100%;display:grid;place-items:center;color:var(--muted);">Sin imagen</div>`;
+    }
+  }
+
+  function setMeta({ date, categoryName }) {
+    const meta = document.getElementById("meta");
+    const parts = [];
+
+    if (categoryName) parts.push(`<span class="pill">${categoryName}</span>`);
+    if (date) parts.push(`<span class="pill">${date}</span>`);
+    parts.push(`<span class="pill">LPD</span>`);
+
+    meta.innerHTML = parts.join("");
+  }
+
+  function updateTitleForSEO(titleText) {
+    document.title = `${titleText} | Locos por los Deportes`;
+  }
+
+  async function loadPost() {
+    const id = qs("id");
+    const status = document.getElementById("status");
+    const kicker = document.getElementById("kicker");
+    const titleEl = document.getElementById("title");
+    const contentEl = document.getElementById("content");
+
+    if (!id) {
+      kicker.textContent = "Falta el parámetro de la nota.";
+      titleEl.textContent = "No se encontró la nota";
+      contentEl.innerHTML = `
+        <p>Esta URL necesita un <b>id</b>. Ejemplo: <code>post.html?id=123</code></p>
+        <p><a class="btn primary" href="/index.html">Ir al inicio</a></p>
+      `;
+      setCover(null, "");
+      setMeta({ date: "", categoryName: "" });
+      return;
+    }
+
+    try {
+      // Traemos el post con embed (categorías y featured, cuando aplica)
+      const post = await fetchJson(`${WP_BASE}/wp-json/wp/v2/posts/${id}?_embed=1`);
+
+      const title = decodeHtml(post?.title?.rendered || "Nota");
+      const date = formatDateLong(post?.date);
+      updateTitleForSEO(title);
+
+      kicker.textContent = "Nota";
+      titleEl.textContent = title;
+
+      // Categoría (toma la primera)
+      const cats = post?._embedded?.["wp:term"]?.[0] || [];
+      const catName = cats?.[0]?.name ? decodeHtml(cats[0].name) : "";
+
+      setMeta({ date, categoryName: catName });
+
+      // Imagen
+      const img = await resolveImage(post);
+      setCover(img, title);
+
+      // Contenido
+      contentEl.innerHTML = post?.content?.rendered || "<p>Sin contenido.</p>";
+
+      status.textContent = "";
+    } catch (e) {
+      console.error(e);
+      kicker.textContent = "Error";
+      titleEl.textContent = "No pude cargar la nota";
+      contentEl.innerHTML = `
+        <p>Puede que la nota no exista o que WordPress no responda.</p>
+        <p><a class="btn primary" href="/index.html">Volver al inicio</a></p>
+      `;
+      setCover(null, "");
+      setMeta({ date: "", categoryName: "" });
+      status.textContent = "Revisa la consola (F12) si necesitas el detalle.";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadPost);
+</script>
+
+</body>
+</html>
