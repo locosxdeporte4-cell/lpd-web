@@ -31,37 +31,41 @@
   }
 
   function pickFeaturedFromEmbedded(post) {
-    const media = post && post._embedded && post._embedded["wp:featuredmedia"] ? post._embedded["wp:featuredmedia"][0] : null;
+    const media = post?._embedded?.["wp:featuredmedia"]?.[0];
     if (!media) return null;
-    return (media.media_details && media.media_details.sizes && (media.media_details.sizes.medium_large || media.media_details.sizes.large))
-      ? ((media.media_details.sizes.medium_large && media.media_details.sizes.medium_large.source_url) ||
-         (media.media_details.sizes.large && media.media_details.sizes.large.source_url))
-      : (media.source_url || null);
+    return (
+      media?.media_details?.sizes?.medium_large?.source_url ||
+      media?.media_details?.sizes?.large?.source_url ||
+      media?.source_url ||
+      null
+    );
   }
 
   function pickFirstImgFromContent(post) {
-    const html = post && post.content && post.content.rendered ? post.content.rendered : "";
+    const html = post?.content?.rendered || "";
     const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-    return match && match[1] ? match[1] : null;
+    return (match && match[1]) ? match[1] : null;
   }
 
   async function fetchJson(url) {
     const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status + " for " + url);
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
     return res.json();
   }
 
   async function resolveFromFeaturedMediaId(post) {
-    const mediaId = post && post.featured_media ? post.featured_media : 0;
+    const mediaId = post?.featured_media || 0;
     if (!mediaId) return null;
 
     if (mediaCacheById.has(mediaId)) return mediaCacheById.get(mediaId);
 
-    const media = await fetchJson(WP_BASE + "/wp-json/wp/v2/media/" + mediaId);
+    const url = `${WP_BASE}/wp-json/wp/v2/media/${mediaId}`;
+    const media = await fetchJson(url);
+
     const src =
-      (media.media_details && media.media_details.sizes && media.media_details.sizes.medium_large && media.media_details.sizes.medium_large.source_url) ||
-      (media.media_details && media.media_details.sizes && media.media_details.sizes.large && media.media_details.sizes.large.source_url) ||
-      media.source_url ||
+      media?.media_details?.sizes?.medium_large?.source_url ||
+      media?.media_details?.sizes?.large?.source_url ||
+      media?.source_url ||
       null;
 
     if (src) mediaCacheById.set(mediaId, src);
@@ -69,18 +73,19 @@
   }
 
   async function resolveFromAttachments(post) {
-    const postId = post && post.id ? post.id : 0;
+    const postId = post?.id;
     if (!postId) return null;
 
     if (mediaCacheByPost.has(postId)) return mediaCacheByPost.get(postId);
 
-    const items = await fetchJson(WP_BASE + "/wp-json/wp/v2/media?parent=" + postId + "&per_page=1");
+    const url = `${WP_BASE}/wp-json/wp/v2/media?parent=${postId}&per_page=1`;
+    const items = await fetchJson(url);
     const media = Array.isArray(items) ? items[0] : null;
 
     const src =
-      (media && media.media_details && media.media_details.sizes && media.media_details.sizes.medium_large && media.media_details.sizes.medium_large.source_url) ||
-      (media && media.media_details && media.media_details.sizes && media.media_details.sizes.large && media.media_details.sizes.large.source_url) ||
-      (media && media.source_url) ||
+      media?.media_details?.sizes?.medium_large?.source_url ||
+      media?.media_details?.sizes?.large?.source_url ||
+      media?.source_url ||
       null;
 
     if (src) mediaCacheByPost.set(postId, src);
@@ -97,16 +102,27 @@
     );
   }
 
-  // ==== MODAL ====
+  // ===== Modal control =====
   function openPost(postObj) {
-    document.getElementById("modalTitle").textContent = decodeHtml(postObj.title || "Nota");
+    const titleEl = document.getElementById("modalTitle");
+    const metaEl = document.getElementById("modalMeta");
+    const contentEl = document.getElementById("modalContent");
+    const modal = document.getElementById("postModal");
+
+    if (!titleEl || !metaEl || !contentEl || !modal) {
+      console.warn("Modal elements not found, cannot open modal.");
+      return;
+    }
+
+    titleEl.textContent = decodeHtml(postObj.title || "Nota");
+
     const d = postObj.date ? new Date(postObj.date) : null;
-    document.getElementById("modalMeta").textContent = d && !isNaN(d.getTime())
+    metaEl.textContent = d && !isNaN(d.getTime())
       ? d.toLocaleDateString("es-CL", { day: "2-digit", month: "long", year: "numeric" })
       : "";
 
-    document.getElementById("modalContent").innerHTML = postObj.content || "";
-    const modal = document.getElementById("postModal");
+    contentEl.innerHTML = postObj.content || "";
+
     modal.style.display = "block";
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
@@ -114,6 +130,7 @@
 
   function closePost() {
     const modal = document.getElementById("postModal");
+    if (!modal) return;
     modal.style.display = "none";
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
@@ -132,30 +149,33 @@
   window.openPostFromEl = openPostFromEl;
   window.closePost = closePost;
 
-  document.getElementById("postModal") && document.getElementById("postModal").addEventListener("click", (e) => {
-    if (e.target && e.target.id === "postModal") closePost();
-  });
+  // cerrar modal clickeando fondo + ESC
+  const modalBg = document.getElementById("postModal");
+  if (modalBg) {
+    modalBg.addEventListener("click", (e) => {
+      if (e.target && e.target.id === "postModal") closePost();
+    });
+  }
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closePost();
   });
 
-  // ==== Cards ====
   function makeCard(post, fallbackLabel) {
-    const title = decodeHtml((post && post.title && post.title.rendered) ? post.title.rendered : "Sin título");
-    const excerpt = stripTags((post && post.excerpt && post.excerpt.rendered) ? post.excerpt.rendered : "");
-    const date = formatDate(post && post.date ? post.date : "");
+    const title = decodeHtml(post?.title?.rendered || "Sin título");
+    const excerpt = stripTags(post?.excerpt?.rendered || "");
+    const date = formatDate(post?.date);
 
-    const cats = post && post._embedded && post._embedded["wp:term"] ? (post._embedded["wp:term"][0] || []) : [];
-    const label = (cats[0] && cats[0].name) ? decodeHtml(cats[0].name) : (fallbackLabel || "Últimas");
+    const cats = post?._embedded?.["wp:term"]?.[0] || [];
+    const label = cats?.[0]?.name ? decodeHtml(cats[0].name) : (fallbackLabel || "Últimas");
 
-    const thumbId = "thumb-" + post.id;
+    const thumbId = `thumb-${post.id}`;
 
     const safeJson = encodeURIComponent(JSON.stringify({
-      title: (post && post.title && post.title.rendered) ? post.title.rendered : "",
-      date: post && post.date ? post.date : "",
-      content: (post && post.content && post.content.rendered) ? post.content.rendered : "",
-      link: post && post.link ? post.link : "",
-      id: post && post.id ? post.id : 0
+      title: post?.title?.rendered || "",
+      date: post?.date || "",
+      content: post?.content?.rendered || "",
+      link: post?.link || "",
+      id: post?.id || 0
     }));
 
     return `
@@ -188,8 +208,8 @@
     `;
   }
 
-  async function fetchPostsByCategory(catId, perPage, page) {
-    const url = WP_BASE + "/wp-json/wp/v2/posts?_embed=1&per_page=" + perPage + "&page=" + page + "&categories=" + catId;
+  async function fetchPostsByCategory({ catId, perPage, page }) {
+    const url = `${WP_BASE}/wp-json/wp/v2/posts?_embed=1&per_page=${perPage}&page=${page}&categories=${catId}`;
     return fetchJson(url);
   }
 
@@ -197,38 +217,41 @@
     await Promise.all(posts.map(async (post) => {
       try {
         const src = await resolveImage(post);
-        const el = document.getElementById("thumb-" + post.id);
+        const el = document.getElementById(`thumb-${post.id}`);
         if (!el) return;
 
         if (src) {
           el.style.display = "block";
-          el.innerHTML = `<img alt="${decodeHtml(post.title && post.title.rendered ? post.title.rendered : "Nota")}" src="${src}" loading="lazy">`;
+          el.innerHTML = `<img alt="${decodeHtml(post?.title?.rendered || "Nota")}" src="${src}" loading="lazy">`;
         } else {
           el.style.display = "grid";
           el.textContent = "Sin imagen";
         }
       } catch (e) {
-        const el = document.getElementById("thumb-" + post.id);
+        const el = document.getElementById(`thumb-${post.id}`);
         if (el) { el.style.display = "grid"; el.textContent = "Sin imagen"; }
       }
     }));
   }
 
-  async function renderSection(opts) {
-    const key = opts.key;
-    const catId = opts.catId;
-    const label = opts.label;
-    const perPage = opts.perPage || 3;
-    const withMore = !!opts.withMore;
+  async function renderSection({ key, catId, label, perPage = 3, withMore = false }) {
+    const statusId = `wpStatus-${key}`;
+    const gridId   = `wpNews-${key}`;
+    const btnId    = `wpMore-${key}`;
 
-    const status = document.getElementById("wpStatus-" + key);
-    const grid = document.getElementById("wpNews-" + key);
-    const btn = document.getElementById("wpMore-" + key);
+    const status = document.getElementById(statusId);
+    const grid = document.getElementById(gridId);
+    const btn = document.getElementById(btnId);
 
-    if (!status || !grid) return;
+    // ✅ NO reventar si falta algo
+    if (!status || !grid) {
+      console.warn(`Faltan elementos para la sección "${key}". Se esperaba #${statusId} y #${gridId}`);
+      if (btn) btn.style.display = "none";
+      return;
+    }
 
-    if (!catId) {
-      status.textContent = "Falta configurar el ID de categoría para " + label + ".";
+    if (!catId || catId === 0) {
+      status.textContent = `Falta configurar el ID de categoría para ${label}.`;
       if (btn) btn.disabled = true;
       return;
     }
@@ -237,13 +260,13 @@
 
     async function load() {
       if (btn) { btn.disabled = true; btn.textContent = "Cargando…"; }
-      status.textContent = "Cargando " + label + "…";
+      status.textContent = `Cargando ${label}…`;
 
       try {
-        const posts = await fetchPostsByCategory(catId, perPage, currentPage);
+        const posts = await fetchPostsByCategory({ catId, perPage, page: currentPage });
 
         if (!Array.isArray(posts) || posts.length === 0) {
-          status.textContent = currentPage === 1 ? ("No hay noticias en " + label + " aún.") : ("No hay más noticias en " + label + ".");
+          status.textContent = currentPage === 1 ? `No hay noticias en ${label} aún.` : `No hay más noticias en ${label}.`;
           if (btn) { btn.textContent = "Sin más"; btn.disabled = true; }
           return;
         }
@@ -251,13 +274,13 @@
         grid.insertAdjacentHTML("beforeend", posts.map(p => makeCard(p, label)).join(""));
         await hydrateThumbnails(posts);
 
-        status.textContent = "Mostrando " + grid.children.length + " noticias de " + label;
+        status.textContent = `Mostrando ${grid.children.length} noticias de ${label}`;
         currentPage += 1;
 
         if (btn) { btn.disabled = false; btn.textContent = "Cargar más"; }
       } catch (e) {
         console.error(e);
-        status.textContent = "No pude cargar " + label + ". Revisa consola (F12).";
+        status.textContent = `No pude cargar ${label}. Revisa consola (F12).`;
         if (btn) { btn.disabled = false; btn.textContent = "Reintentar"; }
       }
     }
