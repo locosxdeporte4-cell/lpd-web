@@ -4,140 +4,457 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Locos por los Deportes</title>
+  <meta name="description" content="Noticias deportivas con relato al hueso y comentarios con corazón. Rangers, Primera B, Primera División y programa LxD." />
   <style>
     :root{
-      --bg:#0b1220; --text:#e8eefc; --muted:#a8b3cf;
-      --accent:#38bdf8; --accent2:#ef4444; --line:rgba(255,255,255,.10);
+      --bg:#0b1220;
+      --text:#e8eefc;
+      --muted:#a8b3cf;
+      --accent:#38bdf8;
+      --accent2:#ef4444;
+      --line:rgba(255,255,255,.10);
+      --card:rgba(255,255,255,.04);
+      --shadow:0 18px 50px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
-      background: radial-gradient(1000px 500px at 20% 0%, rgba(56,189,248,.25), transparent 60%),
-                  radial-gradient(900px 500px at 90% 10%, rgba(239,68,68,.18), transparent 55%),
-                  var(--bg);
+      background:
+        radial-gradient(1000px 500px at 18% 0%, rgba(56,189,248,.25), transparent 60%),
+        radial-gradient(900px 520px at 92% 10%, rgba(239,68,68,.18), transparent 55%),
+        var(--bg);
     }
-    .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 60px;}
-    header{
-      display:flex;gap:14px;align-items:center;justify-content:space-between;
-      padding:10px 0 22px;border-bottom:1px solid var(--line);
-    }
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{
-      width:44px;height:44px;border-radius:12px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display:grid;place-items:center;font-weight:900;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    }
-    .brand h1{margin:0;font-size:18px}
-    .brand p{margin:0;color:var(--muted);font-size:13px}
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      padding:10px 12px;border-radius:999px;color:var(--muted);
-      font-size:13px;
-    }
-    .dot{
-      width:8px;height:8px;border-radius:999px;background:var(--accent2);
-      box-shadow:0 0 0 6px rgba(239,68,68,.15);
-    }
-
-    .hero{
-      margin-top:26px;
-      display:grid;grid-template-columns:1.15fr .85fr;gap:18px;
-    }
-    @media (max-width:900px){.hero{grid-template-columns:1fr}}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1120px;margin:0 auto;padding:18px 16px 70px;}
     .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      background:linear-gradient(180deg, var(--card), rgba(255,255,255,.02));
       border:1px solid var(--line);
       border-radius:18px;
       overflow:hidden;
-      box-shadow:0 18px 50px rgba(0,0,0,.35);
+      box-shadow:var(--shadow);
     }
-    .heroLeft{padding:24px 22px}
+
+    /* Header + Nav */
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,.80);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar{
+      max-width:1120px;margin:0 auto;
+      padding:12px 16px;
+      display:flex;gap:14px;align-items:center;justify-content:space-between;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:220px}
+    .logo{
+      width:42px;height:42px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:grid;place-items:center;
+      font-weight:900; letter-spacing:.5px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      user-select:none;
+    }
+    .brand b{display:block;font-size:15px}
+    .brand span{display:block;color:var(--muted);font-size:12.5px}
+    nav{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .navlink{
+      padding:10px 12px;border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:13px;font-weight:700;
+    }
+    .navlink:hover{border-color:rgba(56,189,248,.45);color:var(--text)}
+    .navlink.hot{border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.10);color:var(--text)}
+
+    /* Sponsors bar (ticker) */
+    .sponsors{
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      overflow:hidden;
+    }
+    .sponsorsInner{
+      max-width:1120px;margin:0 auto;
+      padding:10px 16px;
+      display:flex;align-items:center;gap:12px;
+    }
+    .sTag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted); font-size:12.5px; font-weight:800;
+      background:rgba(255,255,255,.03);
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:var(--accent2);
+      box-shadow:0 0 0 6px rgba(239,68,68,.14);
+    }
+    .marquee{
+      position:relative;
+      flex:1;
+      overflow:hidden;
+      mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    }
+    .track{
+      display:flex;gap:10px;align-items:center;
+      width:max-content;
+      animation: scroll 18s linear infinite;
+    }
+    @keyframes scroll{
+      0%{transform:translateX(0)}
+      100%{transform:translateX(-50%)}
+    }
+    .sItem{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--muted); font-size:13px; font-weight:750;
+      white-space:nowrap;
+    }
+    .badge{
+      padding:4px 8px;border-radius:999px;
+      border:1px solid rgba(56,189,248,.35);
+      background:rgba(56,189,248,.10);
+      color:var(--text);
+      font-size:12px;font-weight:900;
+    }
+
+    /* Hero */
+    .hero{margin-top:18px;display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}}
+    .heroLeft{padding:22px}
     .kicker{color:var(--muted);font-size:13px}
     .kicker b{color:var(--accent)}
-    h2{margin:12px 0 10px;font-size:34px;line-height:1.1}
-    .lead{margin:0;color:var(--muted);font-size:15px;line-height:1.6}
-    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+    h1{margin:10px 0 10px;font-size:34px;line-height:1.1}
+    .lead{margin:0;color:var(--muted);line-height:1.6;font-size:15px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
     .btn{
       display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      padding:12px 14px;border-radius:12px;text-decoration:none;font-weight:800;
-      border:1px solid var(--line);background:rgba(255,255,255,.04);
+      padding:12px 14px;border-radius:12px;font-weight:900;
+      border:1px solid var(--line); background:rgba(255,255,255,.04);
     }
     .btn.primary{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.10)}
     .btn.ig{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.10)}
-    img{width:100%;height:100%;object-fit:cover;display:block}
-    .caption{padding:14px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+    .heroRight img{width:100%;height:100%;object-fit:cover;display:block}
+    .caption{padding:12px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
 
-    .grid{margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}}
-    .box{padding:18px}
-    .box h3{margin:0 0 8px;font-size:16px}
+    /* Sections */
+    section{margin-top:14px}
+    .sectionHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:18px 4px 10px}
+    .sectionHead h2{margin:0;font-size:18px}
+    .sectionHead p{margin:0;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    .box{padding:16px}
+    .box h3{margin:0 0 8px;font-size:15.5px}
     .box p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
-    footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+
+    /* News cards */
+    .newsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:900px){.newsGrid{grid-template-columns:1fr}}
+    .newsCard{display:flex;flex-direction:column}
+    .newsCard .thumb{height:160px;background:rgba(255,255,255,.03)}
+    .newsCard img{width:100%;height:100%;object-fit:cover;display:block}
+    .newsBody{padding:14px 14px 16px}
+    .meta{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:12px}
+    .meta .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      white-space:nowrap;
+    }
+    .newsTitle{margin:10px 0 8px;font-size:16px;line-height:1.25}
+    .newsText{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
+    .newsFooter{padding:12px 14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .link{color:var(--accent);font-weight:900;font-size:13px}
+    .link:hover{text-decoration:underline}
+
+    /* Program */
+    .program{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    @media(max-width:900px){.program{grid-template-columns:1fr}}
+    .slot{padding:16px}
+    .slot b{display:block;margin-bottom:6px}
+    .slot small{color:var(--muted)}
+
+    footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .smallLinks a{color:var(--muted)}
+    .smallLinks a:hover{color:var(--text)}
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo">LPD</div>
-        <div>
-          <h1>Locos por los Deportes</h1>
-          <p>Relato al hueso • Comentarios con corazón • Chile 🇨🇱</p>
-        </div>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">LPD</div>
+      <div>
+        <b>Locos por los Deportes</b>
+        <span>Relato al hueso • Comentarios con corazón • Chile 🇨🇱</span>
       </div>
-      <div class="pill"><span class="dot"></span> Cobertura activa</div>
-    </header>
+    </div>
 
-    <section class="hero">
-      <div class="card heroLeft">
-        <div class="kicker">🎙️ <b>Modo radio</b> activado • “Estamos al aire”</div>
-        <h2>La pasión del deporte, contada como corresponde.</h2>
-        <p class="lead">
-          Noticias, previas, resultados y opinión con identidad. Si te gusta el fútbol chileno contado sin humo,
-          este es tu lugar.
-        </p>
-
-        <div class="actions">
-          <a class="btn primary" href="https://www.instagram.com/locos.porlosdeportes/" target="_blank" rel="noreferrer">
-            📲 Síguenos en Instagram
-          </a>
-          <a class="btn ig" href="https://www.instagram.com/locos.porlosdeportes/" target="_blank" rel="noreferrer">
-            🔥 Ver historias
-          </a>
-        </div>
-      </div>
-
-      <div class="card">
-        <img alt="Fútbol en estadio"
-             src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1200&q=70"/>
-        <div class="caption">Pasión, análisis y comunidad deportiva.</div>
-      </div>
-    </section>
-
-    <section class="grid">
-      <div class="card box">
-        <h3>⚽ Fútbol chileno</h3>
-        <p>Seguimiento, contexto y opinión con respeto. Lo importante es entender el juego.</p>
-      </div>
-      <div class="card box">
-        <h3>🎥 Transmisiones</h3>
-        <p>Relatos, jugadas clave y momentos que se comentan y se comparten.</p>
-      </div>
-      <div class="card box">
-        <h3>🧠 Comunidad</h3>
-        <p>Encuestas, debate con buena onda y pasión por el deporte.</p>
-      </div>
-    </section>
-
-    <footer>
-      <small>© 2025 Locos por los Deportes</small>
-      <small>Instagram: @locos.porlosdeportes</small>
-    </footer>
+    <nav>
+      <a class="navlink hot" href="#ultimas">📰 Últimas</a>
+      <a class="navlink" href="#rangers">🔵 Rangers</a>
+      <a class="navlink" href="#primeraB">🏆 Primera B</a>
+      <a class="navlink" href="#primera">⭐ Primera División</a>
+      <a class="navlink" href="#programa">🎙️ Programa LxD</a>
+    </nav>
   </div>
+
+  <div class="sponsors">
+    <div class="sponsorsInner">
+      <div class="sTag"><span class="dot"></span> Auspician</div>
+
+      <div class="marquee" aria-label="Auspicios">
+        <!-- duplicado para efecto infinito -->
+        <div class="track">
+          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #1</div>
+          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #2</div>
+          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #3</div>
+          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #4</div>
+          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #1</div>
+          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #2</div>
+          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #3</div>
+          <div class="sItem"><span class="badge">SPONSOR</span> Tu Auspiciador #4</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero">
+    <div class="card heroLeft">
+      <div class="kicker">⚽ <b>Noticias con identidad</b> • Deportivo, radial y al grano</div>
+      <h1>Donde el deporte se vive… y se relata como corresponde.</h1>
+      <p class="lead">
+        Rangers, Primera B, Primera División y todo lo que se comenta en la semana.
+        Notas cortitas, con contexto y sin humo.
+      </p>
+
+      <div class="actions">
+        <a class="btn primary" href="#ultimas">Ver últimas noticias</a>
+        <a class="btn ig" href="https://www.instagram.com/locos.porlosdeportes/" target="_blank" rel="noreferrer">
+          Instagram @locos.porlosdeportes
+        </a>
+      </div>
+    </div>
+
+    <div class="card heroRight">
+      <img alt="Fútbol en estadio"
+           src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1200&q=70">
+      <div class="caption">Pasión, análisis y comunidad deportiva.</div>
+    </div>
+  </section>
+
+  <!-- ÚLTIMAS -->
+  <section id="ultimas">
+    <div class="sectionHead">
+      <div>
+        <h2>📰 Últimas noticias</h2>
+        <p>Lo nuevo, lo importante y lo conversable.</p>
+      </div>
+      <p>Actualización automática (próximo paso)</p>
+    </div>
+
+    <div class="newsGrid">
+      <article class="card newsCard">
+        <div class="thumb">
+          <img alt="Noticia"
+               src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1200&q=70">
+        </div>
+        <div class="newsBody">
+          <div class="meta">
+            <span class="pill">Últimas</span>
+            <span>Hoy</span>
+          </div>
+          <h3 class="newsTitle">Titular principal del día (ponle el toque LxD)</h3>
+          <p class="newsText">Bajada corta con estilo radial: qué pasó, por qué importa y qué se viene.</p>
+        </div>
+        <div class="newsFooter">
+          <span class="pill">LPD</span>
+          <a class="link" href="#rangers">Ver Rangers →</a>
+        </div>
+      </article>
+
+      <article class="card newsCard">
+        <div class="thumb">
+          <img alt="Primera B"
+               src="https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?auto=format&fit=crop&w=1200&q=70">
+        </div>
+        <div class="newsBody">
+          <div class="meta">
+            <span class="pill">Primera B</span>
+            <span>Esta semana</span>
+          </div>
+          <h3 class="newsTitle">La Primera B no perdona: previa, forma y puntos clave</h3>
+          <p class="newsText">Resumen corto para enganchar: rendimiento, rivales y tabla.</p>
+        </div>
+        <div class="newsFooter">
+          <span class="pill">Análisis</span>
+          <a class="link" href="#primeraB">Ir a Primera B →</a>
+        </div>
+      </article>
+
+      <article class="card newsCard">
+        <div class="thumb">
+          <img alt="Primera División"
+               src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=1200&q=70">
+        </div>
+        <div class="newsBody">
+          <div class="meta">
+            <span class="pill">Primera</span>
+            <span>Actualidad</span>
+          </div>
+          <h3 class="newsTitle">Primera División: lo que se habló y lo que se juega</h3>
+          <p class="newsText">Lo más conversado del fin de semana, con contexto y sin humo.</p>
+        </div>
+        <div class="newsFooter">
+          <span class="pill">Opinión</span>
+          <a class="link" href="#primera">Ir a Primera →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- RANGERS -->
+  <section id="rangers">
+    <div class="sectionHead">
+      <div>
+        <h2>🔵 Rangers</h2>
+        <p>Seguimiento, refuerzos, fixture y lo que se comenta en Talca.</p>
+      </div>
+      <p>Sección lista para automatizar</p>
+    </div>
+
+    <div class="grid">
+      <div class="card box">
+        <h3>Último partido</h3>
+        <p>Marcador, figura, momento clave y lo que dejó el partido.</p>
+      </div>
+      <div class="card box">
+        <h3>Refuerzos & plantel</h3>
+        <p>Altas, bajas, rumores y confirmaciones (sin humo, con fuente).</p>
+      </div>
+      <div class="card box">
+        <h3>Lo que viene</h3>
+        <p>Próximo rival, horario y “ojo con…” en 3 puntos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIMERA B -->
+  <section id="primeraB">
+    <div class="sectionHead">
+      <div>
+        <h2>🏆 Primera B</h2>
+        <p>Tabla, fechas, equipos fuertes y sorpresas.</p>
+      </div>
+      <p>Modo cobertura</p>
+    </div>
+
+    <div class="grid">
+      <div class="card box">
+        <h3>Tabla al día</h3>
+        <p>Quién pelea arriba, quién sufre abajo y por qué.</p>
+      </div>
+      <div class="card box">
+        <h3>Partidos imperdibles</h3>
+        <p>Los duelos que se juegan algo de verdad.</p>
+      </div>
+      <div class="card box">
+        <h3>Figura de la fecha</h3>
+        <p>El jugador que se ganó el micrófono.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIMERA DIVISIÓN -->
+  <section id="primera">
+    <div class="sectionHead">
+      <div>
+        <h2>⭐ Primera División</h2>
+        <p>Noticias grandes, polémicas, tabla y fechas.</p>
+      </div>
+      <p>Resumen con contexto</p>
+    </div>
+
+    <div class="grid">
+      <div class="card box">
+        <h3>Lo más conversado</h3>
+        <p>Lo que se habló en la fecha: VAR, penales, polémicas.</p>
+      </div>
+      <div class="card box">
+        <h3>Top equipos</h3>
+        <p>Quién está fino, quién viene cayendo y por qué.</p>
+      </div>
+      <div class="card box">
+        <h3>Agenda</h3>
+        <p>Fechas y horarios clave para no perderse nada.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROGRAMA -->
+  <section id="programa">
+    <div class="sectionHead">
+      <div>
+        <h2>🎙️ Programa LxD</h2>
+        <p>La pauta: previa, relato y post con identidad.</p>
+      </div>
+      <p>Configurable</p>
+    </div>
+
+    <div class="program">
+      <div class="card slot">
+        <b>Previa</b>
+        <small>Formaciones, claves y “ojo con…” en 60 segundos.</small>
+      </div>
+      <div class="card slot">
+        <b>Al aire</b>
+        <small>Relato con ritmo, sin ahogarse y con emoción.</small>
+      </div>
+      <div class="card slot">
+        <b>Post partido</b>
+        <small>Figura, polémicas, resumen y lo que viene.</small>
+      </div>
+      <div class="card slot">
+        <b>Redes</b>
+        <small>Clips, stories y debate con la comunidad.</small>
+      </div>
+    </div>
+
+    <div class="card box" style="margin-top:12px">
+      <h3>📲 Redes oficiales</h3>
+      <p>Instagram: <b>@locos.porlosdeportes</b> — clips, historias y resumen de la fecha.</p>
+      <div class="actions" style="margin-top:12px">
+        <a class="btn ig" href="https://www.instagram.com/locos.porlosdeportes/" target="_blank" rel="noreferrer">Abrir Instagram</a>
+        <a class="btn primary" href="#ultimas">Volver a Últimas</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <small>© 2025 Locos por los Deportes</small>
+    <small class="smallLinks">
+      <a href="#ultimas">Últimas</a> ·
+      <a href="#rangers">Rangers</a> ·
+      <a href="#primeraB">Primera B</a> ·
+      <a href="#primera">Primera</a> ·
+      <a href="#programa">Programa</a>
+    </small>
+  </footer>
+
+</div>
 </body>
 </html>
