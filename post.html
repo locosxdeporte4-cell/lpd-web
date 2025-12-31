@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LPD — Nota</title>
+  <style>
+    :root{--bg:#0b1220;--text:#e8eefc;--muted:#a8b3cf;--line:rgba(255,255,255,.10);--card:rgba(255,255,255,.04);--shadow:0 18px 50px rgba(0,0,0,.35);--accent:#38bdf8;}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg);}
+    .wrap{max-width:900px;margin:0 auto;padding:22px 16px 80px;}
+    .card{background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);}
+    .head{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 12px;border-radius:12px;font-weight:900;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;text-decoration:none}
+    .meta{color:var(--muted);font-size:13px;margin:0}
+    h1{margin:0;font-size:24px;line-height:1.2}
+    .content{padding:18px;line-height:1.7}
+    .content img{max-width:100%;height:auto;border-radius:12px}
+    .content a{color:var(--accent);font-weight:900}
+    .content a:hover{text-decoration:underline}
+    .status{color:var(--muted);padding:18px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="head">
+        <a class="btn" href="/#ultimas">← Volver</a>
+        <span class="meta" id="metaTop"></span>
+      </div>
+      <div class="status" id="status">Cargando nota…</div>
+      <div class="content" id="content" style="display:none"></div>
+    </div>
+  </div>
+
+  <script>
+    const WP_BASE = "https://notice-gah5dyfxahbje3bb.chilecentral-01.azurewebsites.net";
+
+    function qs(name){
+      const u = new URL(location.href);
+      return u.searchParams.get(name);
+    }
+    function decodeHtml(html){
+      const t=document.createElement("textarea");
+      t.innerHTML=html||"";
+      return t.value;
+    }
+
+    async function fetchJson(url){
+      const res = await fetch(url, { cache: "no-store" });
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }
+
+    function niceDate(dateStr){
+      const d = new Date(dateStr);
+      if(isNaN(d.getTime())) return "";
+      return d.toLocaleDateString("es-CL",{day:"2-digit",month:"long",year:"numeric"});
+    }
+
+    (async function(){
+      const id = qs("id");
+      const status = document.getElementById("status");
+      const content = document.getElementById("content");
+      const metaTop = document.getElementById("metaTop");
+
+      if(!id){
+        status.textContent = "Falta el parámetro ?id= (ej: /post.html?id=9)";
+        return;
+      }
+
+      try{
+        const post = await fetchJson(`${WP_BASE}/wp-json/wp/v2/posts/${id}?_embed=1`);
+        const title = decodeHtml(post?.title?.rendered || "Nota");
+        document.title = "LPD — " + title;
+
+        const date = niceDate(post?.date);
+        metaTop.textContent = date;
+
+        status.style.display = "none";
+        content.style.display = "block";
+        content.innerHTML = `<h1>${title}</h1><p class="meta">${date}</p>` + (post?.content?.rendered || "");
+
+      }catch(e){
+        console.error(e);
+        status.textContent = "No pude cargar la nota. Revisa que exista y que WordPress responda.";
+      }
+    })();
+  </script>
+</body>
+</html>
